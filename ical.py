@@ -1,9 +1,10 @@
 import os
 import re
 import requests
-import os
 import logging
+import ssl
 
+from urllib3 import poolmanager
 from icalendar import Calendar, Event
 from datetime import datetime, timedelta
 
@@ -13,6 +14,23 @@ logging.basicConfig(
     level=logging.DEBUG,  # Set to DEBUG to capture all levels of log messages
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
+class CustomHttpAdapter (requests.adapters.HTTPAdapter): # Attempt to prevent [SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1000)
+    def __init__(self, ssl_context=None, **kwargs):
+        self.ssl_context = ssl_context
+        super().__init__(**kwargs)
+
+    def init_poolmanager(self, connections, maxsize, block=False):
+        self.poolmanager = poolmanager.PoolManager(
+            num_pools=connections, maxsize=maxsize,
+            block=block, ssl_context=self.ssl_context)
+
+def get_legacy_session():
+    ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+    ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
+    session = requests.session()
+    session.mount('https://', CustomHttpAdapter(ctx))
+    return session
 
 def is_valid_url(url) -> bool:
     logging.debug(f"Validating URL: {url}")
@@ -38,7 +56,7 @@ def fetch_calendar(url) -> None:
         return
 
     try:
-        response = requests.get(url, timeout=10, verify=True)
+        response = get_legacy_session().get(url)
         response.raise_for_status()
         logging.info("Successfully fetched calendar data")
 
