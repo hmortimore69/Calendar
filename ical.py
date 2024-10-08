@@ -63,12 +63,12 @@ def fetch_calendar(url) -> None:
         return
 
     try:
-        if os.path.exists("./calendar.txt"):
-            logging.warning("calendar.txt already exists and will be overwritten.")
-            print("Warning: calendar.txt already exists and will be overwritten.")
-        with open("./calendar.txt", "w") as file:
+        if os.path.exists("./calendar.ics"):
+            logging.warning("calendar.ics already exists and will be overwritten.")
+            print("Warning: calendar.ics already exists and will be overwritten.")
+        with open("./calendar.ics", "w") as file:
             file.write(response.text)
-            logging.info("Successfully saved calendar data to calendar.txt")
+            logging.info("Successfully saved calendar data to calendar.ics")
 
     except IOError as io_err:
         logging.error(f"File I/O error occurred: {io_err}")
@@ -79,7 +79,7 @@ def read_ics(file_path):
         print(f"File not found: {file_path}")
         return
     
-    with open(file_path, "rb") as ics_file:
+    with open(file_path, "r") as ics_file:
         calendar = Calendar.from_ical(ics_file.read())
 
         for component in calendar.walk():
@@ -107,7 +107,7 @@ def main() -> None:
     logging.debug(f"User entered URL: {user_url}")
     fetch_calendar(user_url)
 
-    ics_file_path = "calendar.ics"
+    ics_file_path = "./calendar.ics"
     read_ics(ics_file_path)
 
 main()
