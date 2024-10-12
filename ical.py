@@ -58,7 +58,7 @@ def is_valid_url(url) -> bool:
     return is_valid
 
 
-def fetch_calendar(url) -> None:
+def fetch_calendar(url) -> bool:
     logging.info(f"Fetching calendar from URL: {url}")
 
     if not is_valid_url(url):
@@ -103,33 +103,9 @@ def fetch_calendar(url) -> None:
         logging.error(f"File I/O error occurred: {io_err}")
         print("An error occurred while saving the calendar.")
 
-
-def read_ics(file_path):
-    if not os.path.exists(file_path):
-        print(f"File not found: {file_path}")
-        return
-
-    with open(file_path, "r") as ics_file:
-        calendar = Calendar.from_ical(ics_file.read())
-
-        for component in calendar.walk():
-            if component.name == "VEVENT":
-                event = {
-                    "summary": component.get("summary"),
-                    "start": component.get("dtstart").dt,
-                    "end": component.get("dtend").dt,
-                    "description": component.get("description"),
-                }
-
-                print_event(event)
-
-
-def print_event(event):
-    print(f"Summary: {event['summary']}")
-    print(f"Start: {event['start']}")
-    print(f"End: {event['end']}")
-    print(f"Description: {event['description']}")
-    print("-" * 40)
+    if os.path.exists("./calendar.ics"):
+        return True
+    return False
 
 
 def main() -> None:
@@ -140,9 +116,6 @@ def main() -> None:
     # Verify input URL and fetch calendar data
     fetch_calendar(user_url)
 
-    # Read and display calendar data
-    ics_file_path = "./calendar.ics"
-    read_ics(ics_file_path)
 
-
-main()
+if __name__ == "__main__":
+    main()

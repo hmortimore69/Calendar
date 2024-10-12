@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.10.1/main.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/rrule@2.6.8/dist/es5/rrule.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <style>
+        .fc-event-title, .fc-event-time {
+            white-space: normal;
+        }
+
+        .fc-event:hover {
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: '/events',
+                eventTimeFormat: { // 24-hour clock
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                },
+                eventClick: function(info) {
+                    Swal.fire({
+                        title: info.event.title,
+                        html: '<b>Start:</b> ' + info.event.start + '<br>' +
+                              '<b>End:</b> ' + info.event.end +  '<br>' +
+                              '<b>Description:</b> ' + info.event.extendedProps.description,
+                        icon: 'info'
+                    });
+                },
+                dayMaxEventRows: true, 
+                height: 'auto', 
+                firstDay: 1, 
+                fixedWeekCount: false,
+                dayHeaderFormat: { weekday: 'long' }
+            });
+            calendar.render();
+
+            // Event listeners for view buttons
+            document.getElementById('dailyView').addEventListener('click', function() {
+                calendar.changeView('timeGridDay');
+            });
+            document.getElementById('weeklyView').addEventListener('click', function() {
+                calendar.changeView('timeGridWeek');
+            });
+            document.getElementById('monthlyView').addEventListener('click', function() {
+                calendar.changeView('dayGridMonth');
+            });
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <button id="dailyView">Daily View</button>
+        <button id="weeklyView">Weekly View</button>
+        <button id="monthlyView">Monthly View</button>
+    </div>
+    <div id='calendar'></div>
+</body>
+</html>
