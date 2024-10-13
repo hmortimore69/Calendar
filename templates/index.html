@@ -74,12 +74,31 @@
             firstDay: 1,
             fixedWeekCount: false,
             headerToolbar: {
-                left: 'prev,next today importCalendar',
+                left: 'prev,next today importCalendar colorEvents',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay',
             }, 
 
             customButtons: {
+                colorEvents: {
+                    text: 'Theme',
+                    click: function() {
+                        Swal.fire({
+                            title: 'Pick Event Color',
+                            html: '<input type="color" id="colorPicker" value="#3788d8" title="Choose event color">',
+                            showCancelButton: true,
+                            confirmButtonText: 'Apply',
+                            preConfirm: () => {
+                                const color = document.getElementById('colorPicker').value;
+                                document.documentElement.style.setProperty('--event-bg-color', color);
+                                calendar.getEvents().forEach(event => {
+                                    event.setProp('color', color);
+                                });
+                            }
+                        });
+                    }
+                },
+
                 importCalendar: {
                     text: 'Import',
                     click: function() {
@@ -107,7 +126,6 @@
                                 })
                                 .then(data => {
                                     if (data.ok) {
-                                        calendar.refetchEvents();
                                         location.reload();
                                     }
                                 })
