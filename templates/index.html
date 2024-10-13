@@ -157,8 +157,8 @@
             eventClick: function(info) {
                 Swal.fire({
                     title: info.event.title,
-                    html: '<b>Start:</b> ' + info.event.start + '<br>' +
-                          '<b>End:</b> ' + info.event.end +  '<br>' +
+                    html: '<b>Start:</b> ' + info.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) + '<br>' +
+                          '<b>End:</b> ' + info.event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) +  '<br><br>' +
                           '<b>Description:</b> ' + info.event.extendedProps.description,
                     icon: 'info'
                 });
