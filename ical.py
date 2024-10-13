@@ -4,6 +4,7 @@ import requests
 import logging
 import ssl
 
+from flask import jsonify
 from urllib3 import poolmanager
 from icalendar import Calendar, Event
 from datetime import datetime, timedelta
@@ -58,13 +59,12 @@ def is_valid_url(url) -> bool:
     return is_valid
 
 
-def fetch_calendar(url) -> bool:
+def fetch_calendar(url) -> jsonify:
     logging.info(f"Fetching calendar from URL: {url}")
 
     if not is_valid_url(url):
         logging.warning("Invalid URL format")
-        print("Invalid URL format")
-        return
+        return jsonify({"error": "Invalid URL format"})
 
     try:
         response = get_legacy_session().get(url)
@@ -73,23 +73,19 @@ def fetch_calendar(url) -> bool:
 
     except requests.exceptions.HTTPError as http_err:
         logging.error(f"HTTP error occurred: {http_err}")
-        print("An error occurred while fetching the calendar.")
-        return
+        return jsonify({"error": "An error occurred while fetching the calendar."})
 
     except requests.exceptions.ConnectionError as conn_err:
         logging.error(f"Connection error occurred: {conn_err}")
-        print("An error occurred while fetching the calendar.")
-        return
+        return jsonify({"error": "An error occurred while fetching the calendar."})
 
     except requests.exceptions.Timeout as timeout_err:
         logging.error(f"Timeout error occurred: {timeout_err}")
-        print("An error occurred while fetching the calendar.")
-        return
+        return jsonify({"error": "An error occurred while fetching the calendar."})
 
     except requests.exceptions.RequestException as req_err:
         logging.error(f"An error occurred: {req_err}")
-        print("An error occurred while fetching the calendar.")
-        return
+        return jsonify({"error": "An error occurred while fetching the calendar."})
 
     try:
         if os.path.exists("./calendar.ics"):
@@ -104,18 +100,10 @@ def fetch_calendar(url) -> bool:
         print("An error occurred while saving the calendar.")
 
     if os.path.exists("./calendar.ics"):
-        return True
-    return False
-
-
-def main() -> None:
-    # Get URL from user input
-    user_url = input("Enter the calendar URL: ").strip()
-    logging.debug(f"User entered URL: {user_url}")
-
-    # Verify input URL and fetch calendar data
-    fetch_calendar(user_url)
+        return jsonify({"success": "Calendar data successfully fetched and saved."})
+    return jsonify({"error": "An error occurred while fetching the calendar."})
 
 
 if __name__ == "__main__":
-    main()
+    url = input("Enter the URL of the calendar: ")
+    fetch_calendar(url)

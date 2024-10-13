@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css' rel='stylesheet' />
-
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-    <style>
+<style>
     body, html {
         margin: 10;
         padding: 0;
@@ -50,6 +48,8 @@
     }
 </style>
 <script>
+    var calendar;
+    
     document.addEventListener('DOMContentLoaded', function() {
         function customDayHeaderFormat(date) {
             const day = date.getDate();
@@ -74,9 +74,53 @@
             firstDay: 1,
             fixedWeekCount: false,
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'prev,next today importCalendar',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }, 
+
+            customButtons: {
+                importCalendar: {
+                    text: 'Import',
+                    click: function() {
+                        Swal.fire({
+                            title: 'Import Calendar',
+                            input: 'url',
+                            inputLabel: 'Enter the URL of the ICS file',
+                            inputPlaceholder: 'https://example.com/calendar.ics',
+                            showCancelButton: true,
+                            confirmButtonText: 'Import',
+                            showLoaderOnConfirm: true,
+                            preConfirm: (url) => {
+                                return fetch('/import_calendar', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ url: url })
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(response.statusText);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.ok) {
+                                        calendar.refetchEvents();
+                                        location.reload();
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.showValidationMessage(
+                                        `Request failed: ${error}`
+                                    );
+                                });
+                            },
+                            allowOutsideClick: () => !Swal.isLoading()
+                        })
+                    }
+                }
             },
 
             buttonText: {
@@ -85,7 +129,7 @@
                 week: 'Week',
                 day: 'Day'
             },
-
+            
             views: {
                 timeGridWeek: {
                     allDaySlot: true
@@ -107,7 +151,8 @@
             },
         });
         calendar.render();
-    });
+   
+   });
 </script>
 </head>
 <body>
