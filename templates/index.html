@@ -2,66 +2,115 @@
 <html>
 <head>
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css' rel='stylesheet' />
+
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.10.1/main.global.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/rrule@2.6.8/dist/es5/rrule.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
     <style>
-        .fc-event-title, .fc-event-time {
-            white-space: normal;
+    body, html {
+        margin: 10;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serifs;
+    }
+
+    .fc-event-title, .fc-event-time {
+        white-space: normal;
+    }
+
+    .fc-toolbar, .fc-col-header, .fc-daygrid {
+        position: sticky;
+        top: 0;
+        z-index: 999;
+        background: white; /* Ensure the sticky elements have a background */
+    }
+
+    .fc-now-indicator {
+        width: 100%; /* Stretch the nowIndicator across the entire week */
+        left: 0 !important; /* Ensure it starts from the left edge */
+    }
+
+    .fc-event {
+        --event-bg-color: #3788d8; /* Example default color */
+        background-color: var(--event-bg-color);
+    }
+
+    .fc-event:hover {
+        cursor: pointer;
+        filter: brightness(0.875); /* Darken the background color on hover */
+    }
+
+    #calendar-container {
+        height: 100%;
+    }
+
+    #calendar {
+        height: 100vh;
+        overflow-y: auto;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function customDayHeaderFormat(date) {
+            const day = date.getDate();
+            const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
+                           (day % 10 === 2 && day !== 12) ? 'nd' :
+                           (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
+            return date.toLocaleDateString('en-US', { weekday: 'long' }) + ' ' + day + suffix;
         }
 
-        .fc-event:hover {
-            cursor: pointer;
-        }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                events: '/events',
-                eventTimeFormat: { // 24-hour clock
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                },
-                eventClick: function(info) {
-                    Swal.fire({
-                        title: info.event.title,
-                        html: '<b>Start:</b> ' + info.event.start + '<br>' +
-                              '<b>End:</b> ' + info.event.end +  '<br>' +
-                              '<b>Description:</b> ' + info.event.extendedProps.description,
-                        icon: 'info'
-                    });
-                },
-                dayMaxEventRows: true, 
-                height: 'auto', 
-                firstDay: 1, 
-                fixedWeekCount: false,
-                dayHeaderFormat: { weekday: 'long' }
-            });
-            calendar.render();
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            events: '/events',
+            eventTimeFormat: { // 24-hour clock
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            },
+            
+            nowIndicator: true,
+            dayMaxEventRows: true,
+            firstDay: 1,
+            fixedWeekCount: false,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
 
-            // Event listeners for view buttons
-            document.getElementById('dailyView').addEventListener('click', function() {
-                calendar.changeView('timeGridDay');
-            });
-            document.getElementById('weeklyView').addEventListener('click', function() {
-                calendar.changeView('timeGridWeek');
-            });
-            document.getElementById('monthlyView').addEventListener('click', function() {
-                calendar.changeView('dayGridMonth');
-            });
+            buttonText: {
+                today: 'Today',
+                month: 'Month',
+                week: 'Week',
+                day: 'Day'
+            },
+
+            views: {
+                timeGridWeek: {
+                    allDaySlot: true
+                }
+            },
+
+            eventClick: function(info) {
+                Swal.fire({
+                    title: info.event.title,
+                    html: '<b>Start:</b> ' + info.event.start + '<br>' +
+                          '<b>End:</b> ' + info.event.end +  '<br>' +
+                          '<b>Description:</b> ' + info.event.extendedProps.description,
+                    icon: 'info'
+                });
+            },
+
+            dayHeaderContent: function(arg) {
+                return customDayHeaderFormat(arg.date);
+            },
         });
-    </script>
+        calendar.render();
+    });
+</script>
 </head>
 <body>
-    <div>
-        <button id="dailyView">Daily View</button>
-        <button id="weeklyView">Weekly View</button>
-        <button id="monthlyView">Monthly View</button>
-    </div>
     <div id='calendar'></div>
 </body>
 </html>
