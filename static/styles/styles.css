@@ -1,0 +1,42 @@
+body, html {
+    margin: 10;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serifs;
+}
+
+.fc-event-title, .fc-event-time {
+    white-space: normal;
+}
+
+.fc-toolbar, .fc-col-header, .fc-daygrid {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: white; /* Ensure the sticky elements have a background */
+}
+
+.fc-now-indicator {
+    width: 100%; /* Stretch the nowIndicator across the entire week */
+    left: 0 !important; /* Ensure it starts from the left edge */
+}
+
+.fc-event {
+    --event-bg-color: #3788d8; /* Example default color */
+    background-color: var(--event-bg-color);
+}
+
+.fc-event:hover {
+    cursor: pointer;
+    filter: brightness(0.875); /* Darken the background color on hover */
+}
+
+#calendar-container {
+    height: 100%;
+}
+
+#calendar {
+    height: 100vh;
+    overflow-y: auto;
+}

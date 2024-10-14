@@ -94,7 +94,7 @@ def import_calendar():
 
     if not url:
         return jsonify({"error": "No URL provided"})
-    
+
     fetch_calendar(url)
     return jsonify({"ok": True})
 
@@ -103,8 +103,9 @@ def import_calendar():
 def get_events() -> jsonify:
     if os.path.exists("calendar.ics"):
         return jsonify(prep_events())
-    
+
     return jsonify()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+if __name__ == '__main__':
+    app.run(host='192.168.0.29', port=5000, debug=True, threaded=False)
